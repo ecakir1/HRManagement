@@ -1,5 +1,10 @@
 using DAL.Core;
+using DAL.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using API.EmployeeServices;
+using DAL.Core.IConfiguration;
+using DAL.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +20,15 @@ builder.Services.AddDbContext<HRManagementDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MsSQLConnectionString"));
 });
 
+// Identity yapýlandýrmasý
+builder.Services.AddIdentity<Employee, IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<HRManagementDbContext>()
+    .AddDefaultTokenProviders();
+
+// EmployeeService ve diðer baðýmlýlýklarý ekleyin
+builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,6 +40,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication(); // Authentication middleware'i ekleyin
 app.UseAuthorization();
 
 app.MapControllers();

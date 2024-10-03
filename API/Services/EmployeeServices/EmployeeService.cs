@@ -1,15 +1,20 @@
 ﻿using DAL.Core.IConfiguration;
 using DAL.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace API.EmployeeServices
 {
     public class EmployeeService
     {
         private readonly IUnitOfWork unitOfWork;
+        private readonly UserManager<Employee> userManager;
+        private readonly SignInManager<Employee> signInManager;
 
-        public EmployeeService(IUnitOfWork unitOfWork)
+        public EmployeeService(IUnitOfWork unitOfWork, UserManager<Employee> userManager, SignInManager<Employee> signInManager)
         {
             this.unitOfWork = unitOfWork;
+            this.userManager = userManager;
+            this.signInManager = signInManager;
         }
 
         public async Task<Employee> CreateEmployee(Employee newEmployee, EmployeeDetail newEmployeeDetail)
@@ -61,6 +66,18 @@ namespace API.EmployeeServices
         {
             unitOfWork.Employees.Remove(employee);
             await unitOfWork.CommitAsync();
+        }
+
+        // Yeni eklenen kullanıcı doğrulama metodu
+        public async Task<bool> ValidateUserAsync(string username, string password)
+        {
+            var user = await userManager.FindByNameAsync(username);
+            if (user != null)
+            {
+                var result = await signInManager.CheckPasswordSignInAsync(user, password, false);
+                return result.Succeeded;
+            }
+            return false;
         }
     }
 }
