@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DALL.Migrations
+namespace DAL.Migrations
 {
     [DbContext(typeof(HRManagementDbContext))]
-    [Migration("20241003073250_InitHRManagementDB")]
-    partial class InitHRManagementDB
+    [Migration("20241003075351_InitHRManagement")]
+    partial class InitHRManagement
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

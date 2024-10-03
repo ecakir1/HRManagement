@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace DALL.Migrations
+namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class InitHRManagementDB : Migration
+    public partial class InitHRManagement : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -9,7 +9,7 @@ namespace DAL.Enums
     public enum LeaveType
     {
         Annual,
-        Sick,
+        Sickness,
         Maternity,
         Paternity,
         Bereavement,
