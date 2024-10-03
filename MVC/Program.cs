@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +7,14 @@ builder.Services.AddControllersWithViews();
 
 // IHttpClientFactory için HTTP Client servisini ekleyin
 builder.Services.AddHttpClient();
+
+// Cookie Authentication ekleyin
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+    });
 
 var app = builder.Build();
 
@@ -21,6 +31,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication(); // Authentication middleware'i ekleyin
 app.UseAuthorization();
 
 app.MapControllerRoute(

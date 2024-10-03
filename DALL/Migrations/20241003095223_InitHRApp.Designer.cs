@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(HRManagementDbContext))]
-    [Migration("20241003075351_InitHRManagement")]
-    partial class InitHRManagement
+    [Migration("20241003095223_InitHRApp")]
+    partial class InitHRApp
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,10 +101,14 @@ namespace DAL.Migrations
             modelBuilder.Entity("DAL.Models.Employee", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -161,6 +165,8 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -502,11 +508,12 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Models.Employee", b =>
                 {
-                    b.HasOne("DAL.Models.Company", null)
+                    b.HasOne("DAL.Models.Company", "Company")
                         .WithMany("Employees")
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("DAL.Models.EmployeeDetail", b =>

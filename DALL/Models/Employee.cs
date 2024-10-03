@@ -10,6 +10,9 @@ namespace DAL.Models
         public DateTime Created_At { get; set; }
         public DateTime Updated_At { get; set; }
 
+        public Guid? CompanyId { get; set; }
+        public Company? Company { get; set; }
+
         public virtual ICollection<LeaveRequest> LeaveRequests { get; set; }
         public virtual ICollection<ExpenseRequest> ExpenseRequests { get; set; }
     }
