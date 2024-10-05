@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using API.EmployeeServices;
 using DAL.Core.IConfiguration;
 using DAL.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,18 +22,39 @@ builder.Services.AddDbContext<HRManagementDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("MsSQLConnectionString"));
 });
 
-// Identity yapýlandýrmasý
+// Identity configuration
 builder.Services.AddIdentity<Employee, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<HRManagementDbContext>()
     .AddDefaultTokenProviders();
 
-// EmployeeService ve diðer baðýmlýlýklarý ekleyin
+// JWT Authentication configuration
+var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
+
+// Add EmployeeService and other dependencies
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
-// Admin kullanýcýyý oluþturma
+// Create admin user
 using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<Employee>>();
@@ -65,7 +89,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication(); // Authentication middleware'i ekleyin
+app.UseAuthentication(); // Add authentication middleware
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,7 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using API.EmployeeServices;
-using API.Models; // LoginModel namespace'i ekleyin
+using API.Models;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using System;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -9,21 +15,45 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly EmployeeService employeeService;
+        private readonly EmployeeService _employeeService;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(EmployeeService employeeService)
+        public AuthController(EmployeeService employeeService, IConfiguration configuration)
         {
-            this.employeeService = employeeService;
+            _employeeService = employeeService;
+            _configuration = configuration;
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            if (await employeeService.ValidateUserAsync(model.Username, model.Password))
+            if (await _employeeService.ValidateUserAsync(model.Username, model.Password))
             {
-                return Ok("Login successful");
+                var token = GenerateJwtToken(model.Username);
+                return Ok(new { token });
             }
             return Unauthorized("Invalid credentials");
+        }
+
+        private string GenerateJwtToken(string username)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(30),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.Migrations
 {
     [DbContext(typeof(HRManagementDbContext))]
-    [Migration("20241003095223_InitHRApp")]
-    partial class InitHRApp
+    [Migration("20241003101309_HRAppAdminApproval")]
+    partial class HRAppAdminApproval
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
