@@ -1,20 +1,21 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Threading.Tasks;
-using API.Models; // LoginModel namespace'i ekleyin
+using API.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace MVC.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IHttpClientFactory httpClientFactory;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public AccountController(IHttpClientFactory httpClientFactory)
         {
-            this.httpClientFactory = httpClientFactory;
+            _httpClientFactory = httpClientFactory;
         }
 
         [HttpGet]
@@ -26,7 +27,7 @@ namespace MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel model)
         {
-            var client = httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient();
             var response = await client.PostAsJsonAsync("https://localhost:7249/api/Auth/login", model);
 
             if (response.IsSuccessStatusCode)
