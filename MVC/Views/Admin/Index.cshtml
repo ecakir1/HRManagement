@@ -1,36 +1,46 @@
-﻿@model IEnumerable<DAL.Models.Employee>
+﻿@model IEnumerable<Employee>
 
 @{
     ViewData["Title"] = "Admin Panel";
 }
 
-<h2>Pending User Requests</h2>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.UserName</td>
-                <td>@user.Email</td>
-                <td>
-                    <form asp-action="Approve" method="post" style="display:inline;">
-                        <input type="hidden" name="userId" value="@user.Id" />
-                        <button type="submit" class="btn btn-success">Approve</button>
-                    </form>
-                    <form asp-action="Reject" method="post" style="display:inline;">
-                        <input type="hidden" name="userId" value="@user.Id" />
-                        <button type="submit" class="btn btn-danger">Reject</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="row">
+    <div class="col-md-3">
+        <ul class="list-group">
+            <li class="list-group-item">
+                <a asp-action="Requests">Requests</a>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-9">
+        <h2>Pending Employee Approvals</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.UserName</td>
+                        <td>@user.Email</td>
+                        <td>
+                            <form asp-action="Approve" method="post" style="display:inline;">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button type="submit" class="btn btn-success">Approve</button>
+                            </form>
+                            <form asp-action="Reject" method="post" style="display:inline;">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <button type="submit" class="btn btn-danger">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

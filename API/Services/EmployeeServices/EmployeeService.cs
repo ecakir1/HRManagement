@@ -17,14 +17,26 @@ namespace API.EmployeeServices
             this.signInManager = signInManager;
         }
 
-        public async Task<Employee> CreateEmployee(Employee newEmployee, EmployeeDetail newEmployeeDetail)
+        public async Task<IdentityResult> CreateEmployee(Employee newEmployee, EmployeeDetail newEmployeeDetail, string password)
         {
-            await unitOfWork.Employees.AddAsync(newEmployee);
-            newEmployeeDetail.EmployeeId = newEmployee.Id;
-            await unitOfWork.Employees.AddDetailAsync(newEmployeeDetail);
-            await unitOfWork.CommitAsync();
+            // Check if a user with the same email already exists
+            var existingUser = await userManager.FindByEmailAsync(newEmployee.Email);
+            if (existingUser != null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Email is already in use." });
+            }
 
-            return newEmployee;
+            // Create the user using UserManager
+            var result = await userManager.CreateAsync(newEmployee, password);
+            if (result.Succeeded)
+            {
+                // Add employee details
+                newEmployeeDetail.EmployeeId = newEmployee.Id;
+                await unitOfWork.Employees.AddDetailAsync(newEmployeeDetail);
+                await unitOfWork.CommitAsync();
+            }
+
+            return result;
         }
 
         public async Task<IEnumerable<Employee>> GetAllEmployees()
@@ -56,7 +68,7 @@ namespace API.EmployeeServices
             employeeDetailToBeUpdated.City = employeeDetail.City;
             employeeDetailToBeUpdated.Educations = employeeDetail.Educations;
             employeeDetailToBeUpdated.Certifications = employeeDetail.Certifications;
-            employeeDetailToBeUpdated.Experiences= employeeDetail.Experiences;
+            employeeDetailToBeUpdated.Experiences = employeeDetail.Experiences;
             employeeDetailToBeUpdated.RemainingLeaveDays = employeeDetail.RemainingLeaveDays;
 
             await unitOfWork.CommitAsync();

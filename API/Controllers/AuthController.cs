@@ -66,7 +66,7 @@ namespace API.Controllers
                 Email = model.Email
             };
 
-            var result = await _employeeService.CreateEmployee(user, new EmployeeDetail());
+            var result = await _employeeService.CreateEmployee(user, new EmployeeDetail(), model.Password);
 
             if (result != null)
             {

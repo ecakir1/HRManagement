@@ -33,9 +33,9 @@ namespace MVC.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, model.Username)
-                };
+                    {
+                        new Claim(ClaimTypes.Name, model.Username)
+                    };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
@@ -68,10 +68,17 @@ namespace MVC.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return RedirectToAction("Login");
+                    // Return a flag indicating successful registration
+                    TempData["SignUpSuccess"] = true;
+                    return RedirectToAction("SignUp");
                 }
 
                 ModelState.AddModelError(string.Empty, "Registration failed.");
+            }
+            else
+            {
+                // Clear the success flag if there are validation errors
+                TempData["SignUpSuccess"] = null;
             }
 
             return View(model);

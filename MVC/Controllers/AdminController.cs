@@ -64,5 +64,10 @@ namespace MVC.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        public IActionResult Requests()
+        {
+            return View();
+        }
     }
 }

@@ -6,6 +6,20 @@
 
 <h2>Sign Up</h2>
 
+<!-- Display pop-up message if sign-up was successful -->
+@if (TempData["SignUpSuccess"] != null)
+{
+    <div id="successMessage" class="alert alert-success">
+        Sign Up Successful! Redirecting to login page...
+    </div>
+    <script>
+        // Redirect to login page after 5 seconds
+        setTimeout(function () {
+            window.location.href = '@Url.Action("Login", "Account")';
+        }, 2500);
+    </script>
+}
+
 <form asp-action="SignUp" method="post">
     <div class="form-group">
         <label asp-for="Username"></label>
@@ -19,13 +33,17 @@
     </div>
     <div class="form-group">
         <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" />
+        <input asp-for="Password" class="form-control" type="password" />
         <span asp-validation-for="Password" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="ConfirmPassword"></label>
-        <input asp-for="ConfirmPassword" class="form-control" />
+        <input asp-for="ConfirmPassword" class="form-control" type="password" />
         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Sign Up</button>
 </form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
