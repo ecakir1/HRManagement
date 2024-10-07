@@ -1,5 +1,6 @@
 ﻿using DAL.Core.IRepository;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Core.Repository
 {
@@ -7,22 +8,30 @@ namespace DAL.Core.Repository
     {
         public EmployeeRepository(HRManagementDbContext context) : base(context) { }
 
-        public Task AddAsync(Employee employee)
+        public override async Task<IEnumerable<Employee>> GetAllAsync()
         {
-            PersonnelManagementDBContext.Employees.Add(employee);
-            return Task.CompletedTask;
-            
+            return await HRManagementDbContext.Employees
+                .Include(e => e.EmployeeDetail).ToListAsync();
         }
 
-        public Task AddDetailAsync(EmployeeDetail employeeDetail)
+        public override async Task<Employee> GetByIdAsync(Guid id)
         {
-            PersonnelManagementDBContext.EmployeeDetails.Add(employeeDetail);
-            return Task.CompletedTask;
-
+            return await HRManagementDbContext.Employees
+                .Include(e => e.EmployeeDetail)
+                .FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        private HRManagementDbContext PersonnelManagementDBContext { get { return Context; } }
+        public async Task<EmployeeDetail> GetDetailByIdAsync(Guid id)
+        {
+            return await HRManagementDbContext.EmployeeDetails.FirstOrDefaultAsync(e => e.EmployeeId == id);
+        }
 
 
+        public async Task AddDetailAsync(EmployeeDetail employeeDetail)
+        {
+            await HRManagementDbContext.EmployeeDetails.AddAsync(employeeDetail);
+        }
+
+        private HRManagementDbContext HRManagementDbContext => Context;
     }
 }

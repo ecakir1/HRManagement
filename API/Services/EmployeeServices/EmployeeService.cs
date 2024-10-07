@@ -54,9 +54,9 @@ namespace API.EmployeeServices
             employeeDetailToBeUpdated.Position = employeeDetail.Position;
             employeeDetailToBeUpdated.Department = employeeDetail.Department;
             employeeDetailToBeUpdated.City = employeeDetail.City;
-            employeeDetailToBeUpdated.Education = employeeDetail.Education;
+            employeeDetailToBeUpdated.Educations = employeeDetail.Educations;
             employeeDetailToBeUpdated.Certifications = employeeDetail.Certifications;
-            employeeDetailToBeUpdated.Experience = employeeDetail.Experience;
+            employeeDetailToBeUpdated.Experiences= employeeDetail.Experiences;
             employeeDetailToBeUpdated.RemainingLeaveDays = employeeDetail.RemainingLeaveDays;
 
             await unitOfWork.CommitAsync();

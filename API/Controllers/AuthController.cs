@@ -8,6 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System;
 using System.Security.Claims;
+using DAL.Models;
 
 namespace API.Controllers
 {
@@ -55,5 +56,25 @@ namespace API.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp([FromBody] SignUpModel model)
+        {
+            var user = new Employee
+            {
+                UserName = model.Username,
+                Email = model.Email
+            };
+
+            var result = await _employeeService.CreateEmployee(user, new EmployeeDetail());
+
+            if (result != null)
+            {
+                return Ok(new { message = "User created successfully" });
+            }
+
+            return BadRequest("User registration failed");
+        }
+
     }
 }

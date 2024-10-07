@@ -14,9 +14,10 @@ namespace MVC.Controllers
         private readonly UserManager<Employee> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AdminController(UserManager<Employee> userManager)
+        public AdminController(UserManager<Employee> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public IActionResult Index()
@@ -47,6 +48,7 @@ namespace MVC.Controllers
             }
             return RedirectToAction("Index");
         }
+
         [HttpPost]
         public async Task<IActionResult> AssignCompanyExecutive(string userId)
         {
@@ -62,6 +64,5 @@ namespace MVC.Controllers
             }
             return RedirectToAction("Index");
         }
-
     }
 }

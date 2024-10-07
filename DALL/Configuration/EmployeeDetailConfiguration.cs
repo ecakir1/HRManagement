@@ -18,15 +18,6 @@ namespace DAL.Configuration
             builder.Property(ed => ed.City)
                    .HasMaxLength(100);
 
-            builder.Property(ed => ed.Education)
-                   .HasMaxLength(200);
-
-            builder.Property(ed => ed.Certifications)
-                   .HasMaxLength(200);
-
-            builder.Property(ed => ed.Experience)
-                   .HasMaxLength(500);
-
             builder.Property(ed => ed.Position)
                    .HasMaxLength(50);
 
@@ -37,11 +28,23 @@ namespace DAL.Configuration
                    .IsRequired()
                    .HasDefaultValue(0);
 
-            // Relationships
             builder.HasOne(ed => ed.Employee)
-                   .WithOne()
+                   .WithOne(e => e.EmployeeDetail)
                    .HasForeignKey<EmployeeDetail>(ed => ed.EmployeeId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            // Relationships
+            builder.HasMany(ed => ed.Educations)
+                   .WithOne(e => e.EmployeeDetail)
+                   .HasForeignKey(e => e.EmployeeDetailId);
+
+            builder.HasMany(ed => ed.Certifications)
+                   .WithOne(c => c.EmployeeDetail)
+                   .HasForeignKey(c => c.EmployeeDetailId);
+
+            builder.HasMany(ed => ed.Experiences)
+                   .WithOne(exp => exp.EmployeeDetail)
+                   .HasForeignKey(exp => exp.EmployeeDetailId);
         }
     }
 }

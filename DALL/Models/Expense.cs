@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DAL.Models;
 
-namespace DAL.Models
+namespace Data.Models
 {
     public class Expense
     {
-        public Guid ExpenseID { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public Guid ExpenseId { get; set; }
+
+        public Guid EmployeeId { get; set; }
+        public Employee Employee { get; set; }
+
+        public Guid CompanyId {  get; set; }
+
+        public Company Company { get; set; }
+
         public decimal Amount { get; set; }
         public DateTime Date { get; set; }
-        public Guid EmployeeId { get; set; }
-        public virtual Employee Employee { get; set; }
+
+        public string Name { get; set; }
+        public string Description { get; set; }
     }
 }

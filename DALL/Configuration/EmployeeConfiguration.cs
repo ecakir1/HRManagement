@@ -16,6 +16,13 @@ namespace DAL.Configuration
                    .IsRequired()
                    .HasMaxLength(100);
 
+            builder.Property(e => e.Email) 
+                   .IsRequired() 
+                   .HasMaxLength(256); 
+
+            builder.HasIndex(e => e.Email) 
+                   .IsUnique();
+
             builder.Property(e => e.Created_At)
                    .IsRequired();
 
@@ -31,6 +38,12 @@ namespace DAL.Configuration
             builder.HasMany(e => e.ExpenseRequests)
                    .WithOne(er => er.Employee)
                    .HasForeignKey(er => er.EmployeeId)
+                   .OnDelete(DeleteBehavior.Cascade);
+
+
+            builder.HasOne(e => e.EmployeeDetail)
+                   .WithOne(ed => ed.Employee)
+                   .HasForeignKey<EmployeeDetail>(ed => ed.EmployeeId)
                    .OnDelete(DeleteBehavior.Cascade);
         }
     }

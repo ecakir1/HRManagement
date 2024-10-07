@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Data.Models;
 
 namespace DAL.Models
 {
@@ -15,8 +10,11 @@ namespace DAL.Models
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
 
+        public Guid AdminID { get; set; }
+
         public virtual ICollection<Employee> Employees { get; set; }
         public virtual ICollection<CompanyHoliday> Holidays { get; set; }
         public virtual ICollection<Event> Events { get; set; }
+        public virtual IEnumerable<Expense> Expenses { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class HRAppAdminApproval : Migration
+    public partial class firstMig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -34,6 +34,7 @@ namespace DAL.Migrations
                     Address = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    AdminID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     Created_At = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Updated_At = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -75,7 +76,7 @@ namespace DAL.Migrations
                     CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -240,9 +241,6 @@ namespace DAL.Migrations
                     Position = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Department = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Education = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Certifications = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Experience = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     RemainingLeaveDays = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     Created_At = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -267,6 +265,7 @@ namespace DAL.Migrations
                     EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
@@ -281,6 +280,34 @@ namespace DAL.Migrations
                         column: x => x.EmployeeId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Expenses",
+                columns: table => new
+                {
+                    ExpenseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Expenses", x => x.ExpenseId);
+                    table.ForeignKey(
+                        name: "FK_Expenses_AspNetUsers_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Expenses_Companies_CompanyId",
+                        column: x => x.CompanyId,
+                        principalTable: "Companies",
+                        principalColumn: "CompanyId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -307,6 +334,96 @@ namespace DAL.Migrations
                         column: x => x.EmployeeId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Leaves",
+                columns: table => new
+                {
+                    LeaveId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LeaveType = table.Column<int>(type: "int", nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Leaves", x => x.LeaveId);
+                    table.ForeignKey(
+                        name: "FK_Leaves_AspNetUsers_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Certifications",
+                columns: table => new
+                {
+                    CertificationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CertificationName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    CertificationProvider = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    QualificationId = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    EmployeeDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CertificationDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Certifications", x => x.CertificationId);
+                    table.ForeignKey(
+                        name: "FK_Certifications_EmployeeDetails_EmployeeDetailId",
+                        column: x => x.EmployeeDetailId,
+                        principalTable: "EmployeeDetails",
+                        principalColumn: "EmployeeDetailId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Educations",
+                columns: table => new
+                {
+                    EducationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    School = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Degree = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FieldOfStudy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    EmployeeDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Educations", x => x.EducationId);
+                    table.ForeignKey(
+                        name: "FK_Educations_EmployeeDetails_EmployeeDetailId",
+                        column: x => x.EmployeeDetailId,
+                        principalTable: "EmployeeDetails",
+                        principalColumn: "EmployeeDetailId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Experience",
+                columns: table => new
+                {
+                    ExperienceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CompanyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Position = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeeDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Experience", x => x.ExperienceId);
+                    table.ForeignKey(
+                        name: "FK_Experience_EmployeeDetails_EmployeeDetailId",
+                        column: x => x.EmployeeDetailId,
+                        principalTable: "EmployeeDetails",
+                        principalColumn: "EmployeeDetailId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -348,6 +465,12 @@ namespace DAL.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_Email",
+                table: "AspNetUsers",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -355,9 +478,19 @@ namespace DAL.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Certifications_EmployeeDetailId",
+                table: "Certifications",
+                column: "EmployeeDetailId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CompanyHolidays_CompanyId",
                 table: "CompanyHolidays",
                 column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Educations_EmployeeDetailId",
+                table: "Educations",
+                column: "EmployeeDetailId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeDetails_EmployeeId",
@@ -376,8 +509,28 @@ namespace DAL.Migrations
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Expenses_CompanyId",
+                table: "Expenses",
+                column: "CompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Expenses_EmployeeId",
+                table: "Expenses",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Experience_EmployeeDetailId",
+                table: "Experience",
+                column: "EmployeeDetailId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_LeaveRequests_EmployeeId",
                 table: "LeaveRequests",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Leaves_EmployeeId",
+                table: "Leaves",
                 column: "EmployeeId");
         }
 
@@ -400,10 +553,13 @@ namespace DAL.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Certifications");
+
+            migrationBuilder.DropTable(
                 name: "CompanyHolidays");
 
             migrationBuilder.DropTable(
-                name: "EmployeeDetails");
+                name: "Educations");
 
             migrationBuilder.DropTable(
                 name: "Events");
@@ -412,10 +568,22 @@ namespace DAL.Migrations
                 name: "ExpenseRequests");
 
             migrationBuilder.DropTable(
+                name: "Expenses");
+
+            migrationBuilder.DropTable(
+                name: "Experience");
+
+            migrationBuilder.DropTable(
                 name: "LeaveRequests");
 
             migrationBuilder.DropTable(
+                name: "Leaves");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "EmployeeDetails");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

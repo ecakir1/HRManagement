@@ -6,6 +6,7 @@ namespace DAL.Core.IRepository
     {
         Task AddAsync(Employee employee);
 
+        Task<EmployeeDetail> GetDetailByIdAsync(Guid id);
         Task AddDetailAsync(EmployeeDetail employeeDetail);
     }
 }

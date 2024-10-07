@@ -52,6 +52,31 @@ namespace MVC.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public IActionResult SignUp()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SignUp(SignUpModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.PostAsJsonAsync("https://localhost:7249/api/Auth/SignUp", model);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Login");
+                }
+
+                ModelState.AddModelError(string.Empty, "Registration failed.");
+            }
+
+            return View(model);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Logout()
         {

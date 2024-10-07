@@ -27,7 +27,7 @@ namespace DAL.Configuration
 
             // Relationships
             builder.HasMany(c => c.Employees)
-                   .WithOne(e => e.Company)
+                   .WithOne(e => e.Company) 
                    .HasForeignKey(e => e.CompanyId)
                    .OnDelete(DeleteBehavior.Cascade);
 
@@ -40,6 +40,12 @@ namespace DAL.Configuration
                    .WithOne(e => e.Company)
                    .HasForeignKey(e => e.CompanyId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(c => c.Expenses)
+                   .WithOne(e => e.Company)
+                   .HasForeignKey(e => e.CompanyId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }
