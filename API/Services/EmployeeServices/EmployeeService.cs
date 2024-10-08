@@ -4,36 +4,36 @@ using Microsoft.AspNetCore.Identity;
 
 namespace API.EmployeeServices
 {
-    public class EmployeeService
+    public class EmployeeService : IEmployeeService
     {
-        private readonly IUnitOfWork unitOfWork;
-        private readonly UserManager<Employee> userManager;
-        private readonly SignInManager<Employee> signInManager;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<Employee> _userManager;
+        private readonly SignInManager<Employee> _signInManager;
 
         public EmployeeService(IUnitOfWork unitOfWork, UserManager<Employee> userManager, SignInManager<Employee> signInManager)
         {
-            this.unitOfWork = unitOfWork;
-            this.userManager = userManager;
-            this.signInManager = signInManager;
+            _unitOfWork = unitOfWork;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         public async Task<IdentityResult> CreateEmployee(Employee newEmployee, EmployeeDetail newEmployeeDetail, string password)
         {
             // Check if a user with the same email already exists
-            var existingUser = await userManager.FindByEmailAsync(newEmployee.Email);
+            var existingUser = await _userManager.FindByEmailAsync(newEmployee.Email);
             if (existingUser != null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Email is already in use." });
             }
 
             // Create the user using UserManager
-            var result = await userManager.CreateAsync(newEmployee, password);
+            var result = await _userManager.CreateAsync(newEmployee, password);
             if (result.Succeeded)
             {
                 // Add employee details
                 newEmployeeDetail.EmployeeId = newEmployee.Id;
-                await unitOfWork.Employees.AddDetailAsync(newEmployeeDetail);
-                await unitOfWork.CommitAsync();
+                await _unitOfWork.Employees.AddDetailAsync(newEmployeeDetail);
+                await _unitOfWork.CommitAsync();
             }
 
             return result;
@@ -41,12 +41,12 @@ namespace API.EmployeeServices
 
         public async Task<IEnumerable<Employee>> GetAllEmployees()
         {
-            return await unitOfWork.Employees.GetAllAsync();
+            return await _unitOfWork.Employees.GetAllAsync();
         }
 
         public async Task<Employee> GetEmployeeById(Guid id)
         {
-            return await unitOfWork.Employees.GetByIdAsync(id);
+            return await _unitOfWork.Employees.GetByIdAsync(id);
         }
 
         public async Task UpdateEmployee(Employee employeeToBeUpdated, Employee employee)
@@ -57,7 +57,7 @@ namespace API.EmployeeServices
             employeeToBeUpdated.IsActive = employee.IsActive;
             employeeToBeUpdated.Updated_At = DateTime.UtcNow;
 
-            await unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task UpdateEmployeeDetail(EmployeeDetail employeeDetailToBeUpdated, EmployeeDetail employeeDetail)
@@ -71,23 +71,68 @@ namespace API.EmployeeServices
             employeeDetailToBeUpdated.Experiences = employeeDetail.Experiences;
             employeeDetailToBeUpdated.RemainingLeaveDays = employeeDetail.RemainingLeaveDays;
 
-            await unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task DeleteEmployee(Employee employee)
         {
-            unitOfWork.Employees.Remove(employee);
-            await unitOfWork.CommitAsync();
+            _unitOfWork.Employees.Remove(employee);
+            await _unitOfWork.CommitAsync();
         }
 
         // Yeni eklenen kullanıcı doğrulama metodu
         public async Task<bool> ValidateUserAsync(string username, string password)
         {
-            var user = await userManager.FindByNameAsync(username);
+            var user = await _userManager.FindByNameAsync(username);
             if (user != null)
             {
-                var result = await signInManager.CheckPasswordSignInAsync(user, password, false);
+                var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
                 return result.Succeeded;
+            }
+            return false;
+        }
+
+        // Yeni eklenen kullanıcı onaylama metodu
+        public async Task<bool> ApproveUserAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                user.IsActive = true;
+                await _userManager.UpdateAsync(user);
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            return false;
+        }
+
+        // Yeni eklenen kullanıcı reddetme metodu
+        public async Task<bool> RejectUserAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                user.IsActive = false;
+                await _userManager.UpdateAsync(user);
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            return false;
+        }
+
+        // Yeni eklenen şirket yöneticisi atama metodu
+        public async Task<bool> AssignCompanyExecutiveAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                // Şirket yöneticisi rolünü atama
+                var result = await _userManager.AddToRoleAsync(user, "CompanyExecutive");
+                if (result.Succeeded)
+                {
+                    await _unitOfWork.CommitAsync();
+                    return true;
+                }
             }
             return false;
         }
