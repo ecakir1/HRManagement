@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using MVC.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,9 @@ builder.Services.AddControllersWithViews();
 // IHttpClientFactory için HTTP Client servisini ekleyin
 builder.Services.AddHttpClient();
 
+// AuthMessageHandler'ý ekleyin
+builder.Services.AddHttpClient("HRClient").AddHttpMessageHandler<AuthMessageHandler>();
+
 // Cookie Authentication ekleyin
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -15,6 +19,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
         options.LogoutPath = "/Account/Logout";
     });
+
+
 
 var app = builder.Build();
 

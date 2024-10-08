@@ -11,57 +11,51 @@ namespace MVC.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly UserManager<Employee> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public AdminController(UserManager<Employee> userManager, RoleManager<IdentityRole> roleManager)
+        public AdminController(IHttpClientFactory httpClientFactory)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
+            _httpClientFactory = httpClientFactory;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var users = _userManager.Users.Where(u => !u.IsActive).ToList();
-            return View(users);
+            var client = _httpClientFactory.CreateClient("HRClient");
+            var response = await client.GetAsync("https://localhost:7249/api/Admin/InactiveUsers");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var users = await response.Content.ReadFromJsonAsync<List<Employee>>();
+                return View(users);
+            }
+
+            return View(new List<Employee>());
         }
 
         [HttpPost]
         public async Task<IActionResult> Approve(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
-            {
-                user.IsActive = true;
-                await _userManager.UpdateAsync(user);
-            }
+            var client = _httpClientFactory.CreateClient("HRClient");
+            var response = await client.PostAsync($"https://localhost:7249/api/Admin/Approve/{userId}", null);
+
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> Reject(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
-            {
-                await _userManager.DeleteAsync(user);
-            }
+            var client = _httpClientFactory.CreateClient("HRClient");
+            var response = await client.PostAsync($"https://localhost:7249/api/Admin/Reject/{userId}", null);
+
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> AssignCompanyExecutive(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
-            {
-                var roleExists = await _roleManager.RoleExistsAsync("CompanyExecutive");
-                if (!roleExists)
-                {
-                    await _roleManager.CreateAsync(new IdentityRole("CompanyExecutive"));
-                }
-                await _userManager.AddToRoleAsync(user, "CompanyExecutive");
-            }
+            var client = _httpClientFactory.CreateClient("HRClient");
+            var response = await client.PostAsync($"https://localhost:7249/api/Admin/AssignCompanyExecutive/{userId}", null);
+
             return RedirectToAction("Index");
         }
 

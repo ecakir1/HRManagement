@@ -27,15 +27,15 @@ namespace MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginModel model)
         {
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("HRClient");
             var response = await client.PostAsJsonAsync("https://localhost:7249/api/Auth/login", model);
 
             if (response.IsSuccessStatusCode)
             {
                 var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, model.Username)
-                    };
+                            {
+                                new Claim(ClaimTypes.Name, model.Username)
+                            };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var authProperties = new AuthenticationProperties
@@ -63,7 +63,7 @@ namespace MVC.Controllers
         {
             if (ModelState.IsValid)
             {
-                var client = _httpClientFactory.CreateClient();
+                var client = _httpClientFactory.CreateClient("HRClient");
                 var response = await client.PostAsJsonAsync("https://localhost:7249/api/Auth/SignUp", model);
 
                 if (response.IsSuccessStatusCode)

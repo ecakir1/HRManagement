@@ -69,7 +69,9 @@ using (var scope = app.Services.CreateScope())
     var adminUser = new Employee
     {
         UserName = "admin",
-        Email = "admin@example.com"
+        Email = "admin@example.com",
+        EmailConfirmed = true,
+        IsActive = true
     };
 
     var user = await userManager.FindByNameAsync(adminUser.UserName);
